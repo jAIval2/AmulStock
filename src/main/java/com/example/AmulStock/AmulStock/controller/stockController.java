@@ -14,4 +14,8 @@ public class stockController {
     public Map<String,Object> getStock(){
         return amulApiService.getdumstock();
     }
+    @GetMapping("stock/amul")
+    public Map getAmulStock(){
+        return amulApiService.getAmulProducts();
+    }
 }
