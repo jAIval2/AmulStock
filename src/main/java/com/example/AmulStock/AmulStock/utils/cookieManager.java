@@ -30,17 +30,19 @@ public class cookieManager {
         }
 
     }
-    public String getCookiesAsString(){
-        try{
-            URI uri =new URI(AMUL_BASE_URL);
-            StringBuilder sb=new StringBuilder();
-            for (HttpCookie cookie: cookieManager.getCookieStore().get(uri)){
-                if (sb.length()>0){sb.append("; ");
-                sb.append(cookie.getName()).append("=").append(cookie.getValue());}
+    public String getCookiesAsString() {
+        try {
+            URI uri = new URI(AMUL_BASE_URL);
+            StringBuilder sb = new StringBuilder();
+            for (HttpCookie cookie : cookieManager.getCookieStore().get(uri)) {
+                if (sb.length() > 0) {
+                    sb.append("; ");
+                }
+                sb.append(cookie.getName()).append("=").append(cookie.getValue());
             }
             return sb.toString();
-    } catch (Exception e) {
-            throw new RuntimeException("Failed to get Cookie as a String",e);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get Cookie as a String", e);
         }
     }
 }

@@ -24,13 +24,35 @@ public class authManager {
                     return Mono.just(cookies);
                 }).block();
         cookieManager.storeCookies(setCookies);
+        System.out.println("Stored Cookies: " + cookieManager.getCookiesAsString());
 
         String infoJs = webClient.get()
                 .uri("https://shop.amul.com/user/info.js?_v=" + System.currentTimeMillis())
                 .header("Cookie", cookieManager.getCookiesAsString())
                 .retrieve().bodyToMono(String.class).block();
         this.sessionId = parseTid(infoJs);
+
+        // Set store preferences similar to amul-notify
+        setSubstorePreference("66505ff06510ee3d5903fd42"); // default Gujarat for now
     }
+
+    private void setSubstorePreference(String substoreId) {
+        try {
+            String preferenceJson = "{\"data\":{\"store\":\"" + substoreId + "\"}}";
+            webClient.put()
+                    .uri("https://shop.amul.com/entity/ms.settings/_/setPreferences")
+                    .header("Cookie", cookieManager.getCookiesAsString())
+                    .header("tid", generateTidHeader())
+                    .header("Content-Type", "application/json")
+                    .bodyValue(preferenceJson)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set substore preference", e);
+        }
+    }
+
     public String generateTidHeader() {
         String storeId = "62fa94df8c13af2e242eba16";
         String timestamp = String.valueOf(System.currentTimeMillis());
