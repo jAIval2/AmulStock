@@ -1,19 +1,18 @@
 package com.example.AmulStock.AmulStock.service;
+
+import com.example.AmulStock.AmulStock.dto.amulProductsDTO;
 import com.example.AmulStock.AmulStock.utils.authManager;
 import com.example.AmulStock.AmulStock.utils.cookieManager;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.reactive.function.client.WebClient;
-import java.net.CookieManager;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -43,6 +42,72 @@ public class amulApiService {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public List<amulProductsDTO> getAmulProductsDTO() {
+        try {
+            Map<String, Object> response = getAmulProducts();
+            String fileBaseUrl = (String) response.get("fileBaseUrl");
+            List<Map<String, Object>> products = (List<Map<String, Object>>) response.get("data");
+            
+            if (products == null) {
+                log.error("No products found in the API response");
+                return List.of();
+            }
+            
+            return products.stream()
+                .map(product -> {
+                    try {
+                        amulProductsDTO dto = new amulProductsDTO();
+                        dto.setId((String) product.get("_id"));
+                        dto.setName((String) product.get("name"));
+                        dto.setAlias((String) product.get("alias"));
+                        
+                        // Safely handle numeric values that might be null
+                        dto.setPrice(product.get("price") != null ? ((Number) product.get("price")).intValue() : 0);
+                        dto.setComparePrice(product.get("compare_price") != null ? ((Number) product.get("compare_price")).intValue() : 0);
+                        dto.setInventoryQuantity(product.get("inventory_quantity") != null ? ((Number) product.get("inventory_quantity")).intValue() : 0);
+                        dto.setLowStockQuantity(product.get("inventory_low_stock_quantity") != null ? ((Number) product.get("inventory_low_stock_quantity")).intValue() : 0);
+                        
+                        // Handle available flag safely
+                        Object available = product.get("available");
+                        if (available instanceof Integer) {
+                            dto.setAvailable((Integer) available == 1);
+                        } else if (available instanceof Boolean) {
+                            dto.setAvailable((Boolean) available);
+                        } else {
+                            dto.setAvailable(false);
+                        }
+                        
+                        dto.setSku((String) product.get("sku"));
+                        dto.setBrand((String) product.get("brand"));
+                        
+                        // Safely handle images
+                        Object imagesObj = product.get("images");
+                        if (imagesObj instanceof List) {
+                            List<Map<String, Object>> imageMaps = (List<Map<String, Object>>) imagesObj;
+                            List<amulProductsDTO.ProductImage> images = imageMaps.stream()
+                                .filter(img -> img.get("image") != null)
+                                .map(img -> new amulProductsDTO.ProductImage((String) img.get("image")))
+                                .toList();
+                            dto.setImages(images);
+                        } else {
+                            dto.setImages(List.of());
+                        }
+                        
+                        return dto;
+                    } catch (Exception e) {
+                        log.error("Error mapping product: " + product, e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toList();
+        } catch (Exception e) {
+            log.error("Error in getAmulProductsDTO", e);
+            throw new RuntimeException("Failed to process products: " + e.getMessage(), e);
+        }
+    }
+    
     @SuppressWarnings("unchecked")
     public Map<String, Object> getAmulProducts() {
         String tidHeader = authManager.generateTidHeader();
