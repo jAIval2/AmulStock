@@ -10,6 +10,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -80,6 +81,42 @@ public class amulApiService {
                         
                         dto.setSku((String) product.get("sku"));
                         dto.setBrand((String) product.get("brand"));
+                        
+                        // Handle metafields for benefits and ingredients
+                        Object metafieldsObj = product.get("metafields");
+                        if (metafieldsObj instanceof List) {
+                            List<Map<String, Object>> metafields = (List<Map<String, Object>>) metafieldsObj;
+                            
+                            // Extract benefits
+                            metafields.stream()
+                                .filter(meta -> "benefits".equals(meta.get("key")))
+                                .findFirst()
+                                .ifPresent(benefitsMeta -> {
+                                    Object value = benefitsMeta.get("value");
+                                    if (value instanceof String) {
+                                        // Assuming benefits are comma-separated in a single string
+                                        dto.setBenefits(Arrays.asList(((String) value).split("\\s*,\\s*")));
+                                    } else if (value instanceof List) {
+                                        // If it's already a list of strings
+                                        dto.setBenefits((List<String>) value);
+                                    }
+                                });
+                            
+                            // Extract ingredients
+                            metafields.stream()
+                                .filter(meta -> "ingredients".equals(meta.get("key")))
+                                .findFirst()
+                                .ifPresent(ingredientsMeta -> {
+                                    Object value = ingredientsMeta.get("value");
+                                    if (value instanceof String) {
+                                        // Assuming ingredients are comma-separated in a single string
+                                        dto.setIngredients(Arrays.asList(((String) value).split("\\s*,\\s*")));
+                                    } else if (value instanceof List) {
+                                        // If it's already a list of strings
+                                        dto.setIngredients((List<String>) value);
+                                    }
+                                });
+                        }
                         
                         // Safely handle images
                         Object imagesObj = product.get("images");

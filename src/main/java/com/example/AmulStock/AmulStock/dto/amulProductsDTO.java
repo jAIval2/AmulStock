@@ -20,6 +20,8 @@ public class amulProductsDTO{
     private boolean available;
     private String sku;
     private String brand;
+    private List<String> benefits;
+    private List<String> ingredients;
     private List<ProductImage> images;
     
     @Data
