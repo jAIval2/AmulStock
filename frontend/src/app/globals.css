@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'PT Sans', sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 222 83% 4%;
+    --foreground: 210 20% 98%;
+    --card: 220 13% 18%;
+    --card-foreground: 210 20% 98%;
+    --popover: 220 13% 9%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 38 100% 56%;
+    --primary-foreground: 220 13% 9%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 210 20% 60%;
+    --accent: 45 100% 58%;
+    --accent-foreground: 220 13% 9%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 38 100% 56%;
+    --radius: 1rem;
+    --chart-1: 38 100% 56%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --sidebar-background: 220 13% 9%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 38 100% 56%;
+    --sidebar-primary-foreground: 220 13% 9%;
+    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 215 28% 17%;
+    --sidebar-ring: 38 100% 56%;
+  }
+
+  .dark {
+    --background: 222 83% 4%;
+    --foreground: 210 20% 98%;
+    --card: 220 13% 18%;
+    --card-foreground: 210 20% 98%;
+    --popover: 220 13% 9%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 38 100% 56%;
+    --primary-foreground: 220 13% 9%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 210 20% 60%;
+    --accent: 45 100% 58%;
+    --accent-foreground: 220 13% 9%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 38 100% 56%;
+    --radius: 1rem;
+    --chart-1: 38 100% 56%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --sidebar-background: 220 13% 9%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 38 100% 56%;
+    --sidebar-primary-foreground: 220 13% 9%;
+    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 215 28% 17%;
+    --sidebar-ring: 38 100% 56%;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2000ms;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4000ms;
+  }
+  
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  .animated-border-card {
+    border: 5px solid transparent;
+    background:
+      linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+      conic-gradient(from var(--angle), hsl(var(--accent)), hsl(var(--primary)), hsl(var(--accent))) border-box;
+    animation: -spin 4s linear infinite;
+  }
+
+  @keyframes -spin {
+    to {
+      --angle: 360deg;
+    }
+  }
+}
