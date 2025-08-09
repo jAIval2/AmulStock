@@ -10,15 +10,19 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { ProductCard } from "./product-card";
+import { AuthCard } from "./auth-card";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/auth-context";
+import { Button } from "@/components/ui/button";
 
 export function ProductCarousel({ products }: { products: Product[] }) {
-  const [api, setApi] = React.useState<CarouselApi>()
-  const [current, setCurrent] = React.useState(0)
+  const [api, setApi] = React.useState<CarouselApi>();
+  const [current, setCurrent] = React.useState(0);
+  const { user } = useAuth();
 
   React.useEffect(() => {
     if (!api) {
-      return
+      return;
     }
 
     setCurrent(api.selectedScrollSnap())
@@ -48,26 +52,63 @@ export function ProductCarousel({ products }: { products: Product[] }) {
   const displayProducts = products.length > 0 ? products : [defaultProduct];
   const isDefaultCard = products.length === 0;
 
+  // Create an array with products and auth card
+  const carouselItems = [
+    ...displayProducts,
+    { id: 'auth', isAuthCard: true } as any
+  ];
+
   return (
     <Carousel
       setApi={setApi}
       className="w-full h-full"
       opts={{
-        loop: products.length > 1, // Only loop if there are multiple products
+        loop: carouselItems.length > 1,
         align: 'center',
       }}
     >
       <CarouselContent className="h-full">
-        {displayProducts.map((product, index) => {
+        {carouselItems.map((item, index) => {
+          if (item.isAuthCard) {
+            return (
+              <CarouselItem
+                key="auth-card"
+                className={cn(
+                  "basis-full md:basis-1/2 lg:basis-1/3 flex items-center justify-center"
+                )}
+              >
+                <div className="w-full max-w-md">
+                  {!user ? (
+                    <AuthCard />
+                  ) : (
+                    <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+                      <h3 className="text-xl font-bold mb-2">Welcome back!</h3>
+                      <p className="text-muted-foreground mb-6">
+                        You're signed in as {user.email}
+                      </p>
+                      <Button 
+                        onClick={() => signOut(auth)}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        Sign Out
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CarouselItem>
+            );
+          }
+
           return (
             <CarouselItem
-              key={`${product.id}-${index}`}
+              key={`${item.id}-${index}`}
               className={cn(
-                "basis-full md:basis-1/3 flex items-center justify-center"
+                "basis-full md:basis-1/2 lg:basis-1/3 flex items-center justify-center"
               )}
             >
               <ProductCard 
-                product={product} 
+                product={item} 
                 isActive={isDefaultCard ? true : current === index} 
               />
             </CarouselItem>
