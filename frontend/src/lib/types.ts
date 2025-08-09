@@ -5,4 +5,5 @@ export interface Product {
   details: string;
   image: string;
   features: string[];
+  quantity?: number; // Optional quantity for cart functionality
 }

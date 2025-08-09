@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -84,38 +85,36 @@ public class amulApiService {
                         
                         // Handle metafields for benefits and ingredients
                         Object metafieldsObj = product.get("metafields");
-                        if (metafieldsObj instanceof List) {
-                            List<Map<String, Object>> metafields = (List<Map<String, Object>>) metafieldsObj;
+                        if (metafieldsObj instanceof Map) {
+                            Map<String, Object> metafields = (Map<String, Object>) metafieldsObj;
                             
                             // Extract benefits
-                            metafields.stream()
-                                .filter(meta -> "benefits".equals(meta.get("key")))
-                                .findFirst()
-                                .ifPresent(benefitsMeta -> {
-                                    Object value = benefitsMeta.get("value");
-                                    if (value instanceof String) {
-                                        // Assuming benefits are comma-separated in a single string
-                                        dto.setBenefits(Arrays.asList(((String) value).split("\\s*,\\s*")));
-                                    } else if (value instanceof List) {
-                                        // If it's already a list of strings
-                                        dto.setBenefits((List<String>) value);
-                                    }
-                                });
+                            Object benefitsValue = metafields.get("benefits");
+                            if (benefitsValue instanceof String) {
+                                // Parse HTML content and extract text
+                                String benefitsHtml = (String) benefitsValue;
+                                // Remove HTML tags and split by list items or other delimiters
+                                String benefitsText = benefitsHtml.replaceAll("<[^>]*>", " ").trim();
+                                // Split by newlines or other delimiters and clean up
+                                dto.setBenefits(Arrays.stream(benefitsText.split("\\s*\\n\\s*"))
+                                    .filter(s -> !s.trim().isEmpty())
+                                    .map(String::trim)
+                                    .collect(Collectors.toList()));
+                            }
                             
                             // Extract ingredients
-                            metafields.stream()
-                                .filter(meta -> "ingredients".equals(meta.get("key")))
-                                .findFirst()
-                                .ifPresent(ingredientsMeta -> {
-                                    Object value = ingredientsMeta.get("value");
-                                    if (value instanceof String) {
-                                        // Assuming ingredients are comma-separated in a single string
-                                        dto.setIngredients(Arrays.asList(((String) value).split("\\s*,\\s*")));
-                                    } else if (value instanceof List) {
-                                        // If it's already a list of strings
-                                        dto.setIngredients((List<String>) value);
-                                    }
-                                });
+                            Object ingredientsValue = metafields.get("ingredients");
+                            if (ingredientsValue instanceof String) {
+                                // Parse HTML content and extract text
+                                String ingredientsHtml = (String) ingredientsValue;
+                                // Remove HTML tags and clean up
+                                String ingredientsText = ingredientsHtml.replaceAll("<[^>]*>", " ").trim();
+                                // Split by commas or other appropriate delimiters
+                                dto.setIngredients(Arrays.stream(ingredientsText.split("\\s*[,;]\\s*"))
+                                    .filter(s -> !s.trim().isEmpty())
+                                    .map(String::trim)
+                                    .collect(Collectors.toList()));
+                            }
                         }
                         
                         // Safely handle images

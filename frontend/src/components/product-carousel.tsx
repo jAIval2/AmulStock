@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 export function ProductCarousel({ products }: { products: Product[] }) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   React.useEffect(() => {
     if (!api) {
@@ -87,7 +87,7 @@ export function ProductCarousel({ products }: { products: Product[] }) {
                         You're signed in as {user.email}
                       </p>
                       <Button 
-                        onClick={() => signOut(auth)}
+                        onClick={logout}
                         variant="outline"
                         className="w-full"
                       >
