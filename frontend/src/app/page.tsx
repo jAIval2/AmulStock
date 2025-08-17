@@ -1,5 +1,6 @@
 import { ProductCarousel } from '@/components/product-carousel';
 import type { Product } from '@/lib/types';
+export const revalidate = 0;
 
 // Fetch products from backend REST endpoint. If env var is not set, default to localhost:8080
 async function getProducts(): Promise<Product[]> {
@@ -12,10 +13,11 @@ async function getProducts(): Promise<Product[]> {
 
   try {
     const res = await fetch(endpoint, {
+      next: {revalidate: 0},
       signal: controller.signal,
       cache: 'no-store',
       headers: {
-        'Authorization': 'Basic ' + Buffer.from('admin:admin').toString('base64'),
+        'Authorization': 'Basic ' + (typeof window !== 'undefined' ? btoa('admin:admin') : Buffer.from('admin:admin').toString('base64')),
         'Content-Type': 'application/json',
       },
     });

@@ -1,14 +1,12 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  output: 'export',  
+  distDir: 'out',    
+  trailingSlash: false,
+  skipTrailingSlashRedirect: true,
   images: {
+    unoptimized: true, 
     remotePatterns: [
       {
         protocol: 'https',
@@ -23,6 +21,12 @@ const nextConfig: NextConfig = {
         pathname: '/s/62fa94df8c13af2e242eba16/**',
       },
     ],
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 
